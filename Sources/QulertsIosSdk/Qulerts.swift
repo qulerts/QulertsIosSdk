@@ -83,33 +83,29 @@ import UIKit
         
         let customerInitializationHandler = CustomerInitializationHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, sdkKey: qulertsConfig.getSdkKey(), jsonDeserializerService: jsonDeserializerService)
         
+        if let notification = launchOptions?[.remoteNotification] as? [String: AnyObject] {
+            if let pushSource = notification["source"] as? String {
+                if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
+                     notificationProcessorHandler.pushMessageOpened(pushContent: notification)
+
+                     if let launch_url = notification["launch_url"] as? String {
+                         QulertsLogger.log(message: launch_url)
+                     }
+                     // Handle extra parameters here
+                 }
+            }
+        }
+        
+        if let url = launchOptions?[.url] as? [String: AnyObject] {
+                // Handle the remote notification
+        }
         let callback: () -> Void = {
             sdkEventProcessorHandler.sessionStart()
             if (applicationContextHolder.isNewInstallation()){
                 sdkEventProcessorHandler.newInstallation()
                 applicationContextHolder.setInstallationCompleted()
             }
-            
-            if let notification = launchOptions?[.remoteNotification] as? [String: AnyObject] {
-                if let pushSource = notification["source"] as? String {
-                    if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
-                         notificationProcessorHandler.pushMessageOpened(pushContent: notification)
-
-                         if let launch_url = notification["launch_url"] as? String {
-                             QulertsLogger.log(message: launch_url)
-                         }
-                         // Handle extra parameters here
-                     }
-                }
-            }
-            
-            if let url = launchOptions?[.url] as? [String: AnyObject] {
-                    // Handle the remote notification
-            }
-            
-            notificationProcessorHandler.register(userNotificationCenter: UNUserNotificationCenter.current(), uiApplication: UIApplication.shared)
-            
-
+             notificationProcessorHandler.register(userNotificationCenter: UNUserNotificationCenter.current(), uiApplication: UIApplication.shared)
         }
         
         customerInitializationHandler.initialize(completionHandler: callback)
