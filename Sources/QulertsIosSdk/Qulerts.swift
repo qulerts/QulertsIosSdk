@@ -82,23 +82,7 @@ import UIKit
         )
         
         let customerInitializationHandler = CustomerInitializationHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, sdkKey: qulertsConfig.getSdkKey(), jsonDeserializerService: jsonDeserializerService)
-        
-        if let notification = launchOptions?[.remoteNotification] as? [String: AnyObject] {
-            if let pushSource = notification["source"] as? String {
-                if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
-                     notificationProcessorHandler.pushMessageOpened(pushContent: notification)
-
-                     if let launch_url = notification["launch_url"] as? String {
-                         QulertsLogger.log(message: launch_url)
-                     }
-                     // Handle extra parameters here
-                 }
-            }
-        }
-        
-        if let url = launchOptions?[.url] as? [String: AnyObject] {
-                // Handle the remote notification
-        }
+ 
         let callback: () -> Void = {
             sdkEventProcessorHandler.sessionStart()
             if (applicationContextHolder.isNewInstallation()){
@@ -125,6 +109,20 @@ import UIKit
         sessionContextHolder.login(memberId: memberId)
         xennInstance.sdkEventProcessorHandler.login(memberId: memberId)
     }
+    
+    @objc public class func didReceiveNotification(userInfo: [AnyHashable: Any],
+                                                   completionHandler: @escaping (_ launchUrl: String?) -> Void) {
+        if let pushSource = userInfo[Constants.PUSH_PAYLOAD_SOURCE.rawValue] as? String {
+            if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
+                getInstance().notificationProcessorHandler.pushMessageOpened(pushContent: userInfo)
+                 if let launch_url = userInfo["launch_url"] as? String {
+                     completionHandler(launch_url)
+                 }else{
+                     completionHandler(nil)
+                 }
+             }
+        }
+    }
 
     @objc public class func savePushToken(deviceToken: Data) {
         let xennInstance = getInstance()
@@ -140,10 +138,6 @@ import UIKit
             xennInstance.sessionContextHolder.logout()
             xennInstance.sdkEventProcessorHandler.logout(memberId: memberId)
         }
-    }
-
-    @objc public class func synchronizeWith(externalParameters: Dictionary<String, Any>) {
-        getInstance().sdkEventProcessorHandler.updateExternalParameters(externalParameters: externalParameters)
     }
 
     @objc public class func ecommerce() -> EcommerceEventProcessorHandler {
