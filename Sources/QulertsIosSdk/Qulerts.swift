@@ -102,8 +102,21 @@ import UIKit
                 sdkEventProcessorHandler.newInstallation()
                 applicationContextHolder.setInstallationCompleted()
             }
-            qulertsNotificationHandler.register(userNotificationCenter: UNUserNotificationCenter.current(), uiApplication: UIApplication.shared)
+            
+            UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
+                guard granted else { return }
+                UNUserNotificationCenter.current().getNotificationSettings { settings in
+                    guard settings.authorizationStatus == .authorized else { return }
+                    DispatchQueue.main.async {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                }
+            }
+            UNUserNotificationCenter.current().delegate = qulertsNotificationHandler
+            UIApplication.shared.applicationIconBadgeNumber = 0
         }
+        
+        
         
         customerInitializationHandler.initialize(completionHandler: callback)
         

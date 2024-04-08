@@ -19,7 +19,7 @@ import UIKit
 
     @objc public func pushMessageOpened(pushContent: Dictionary<AnyHashable, Any>) {
         let source = pushContent[Constants.PUSH_PAYLOAD_SOURCE.rawValue]
-        if source != nil {
+        if let source = source {
             let pushChannelId = source as? String
             if Constants.PUSH_CHANNEL_ID.rawValue == pushChannelId! {
                 let pushId = getContentItem(key: Constants.PUSH_ID_KEY.rawValue, pushContent: pushContent)

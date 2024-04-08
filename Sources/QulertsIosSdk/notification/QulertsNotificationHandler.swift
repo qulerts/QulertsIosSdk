@@ -7,7 +7,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 
 class QulertsNotificationHandler: NSObject, UNUserNotificationCenterDelegate {
@@ -46,20 +45,6 @@ class QulertsNotificationHandler: NSObject, UNUserNotificationCenterDelegate {
             }
         }
         completionHandler()
-    }
-    
-    func register(userNotificationCenter: UNUserNotificationCenter, uiApplication: UIApplication) {
-        userNotificationCenter.requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
-            guard granted else { return }
-            userNotificationCenter.getNotificationSettings { settings in
-                guard settings.authorizationStatus == .authorized else { return }
-                DispatchQueue.main.async {
-                    uiApplication.registerForRemoteNotifications()
-                }
-            }
-        }
-        userNotificationCenter.delegate = self
-        uiApplication.applicationIconBadgeNumber = 0
     }
     
 }
