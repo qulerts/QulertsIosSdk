@@ -49,7 +49,6 @@ class QulertsNotificationHandler: NSObject, UNUserNotificationCenterDelegate {
     }
     
     func register(userNotificationCenter: UNUserNotificationCenter, uiApplication: UIApplication) {
-        userNotificationCenter.delegate = self
         userNotificationCenter.requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
             guard granted else { return }
             userNotificationCenter.getNotificationSettings { settings in
@@ -59,6 +58,7 @@ class QulertsNotificationHandler: NSObject, UNUserNotificationCenterDelegate {
                 }
             }
         }
+        userNotificationCenter.delegate = self
         uiApplication.applicationIconBadgeNumber = 0
     }
     
