@@ -13,6 +13,7 @@ import Foundation
     private let sdkKey: String
     private var apiUrl: String = Constants.QULERTS_API_URL.rawValue
     private var collectorUrl: String = Constants.QULERTS_COLLECTOR_URL.rawValue
+    private var feedbackUrl: String = Constants.QULERTS_PUSH_FEEDBACK_URL.rawValue
     private var inAppNotificationLinkClickHandler: ((_ deepLink: String) -> ())? = nil
     
     private init(sdkKey: String) {
@@ -25,6 +26,11 @@ import Foundation
     
     public func collectorUrl(url: String) -> QulertsConfig {
         self.collectorUrl = QulertsConfig.getValidUrl(url: url)
+        return self
+    }
+    
+    public func feedbackUrl(url: String) -> QulertsConfig {
+        self.feedbackUrl = QulertsConfig.getValidUrl(url: url)
         return self
     }
     

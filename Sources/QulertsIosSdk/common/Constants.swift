@@ -22,6 +22,6 @@ enum Constants: String {
     case IOS = "IOS"
     case APPLE = "Apple"
     case QULERTS_API_URL = "https://api.qulerts.com"
-    case QULERTS_COLLECTOR_URL = "https://eofu6t4zwmnq1ua.m.pipedream.net/collector"
-    case QULERTS_PUSH_FEEDBACK_URL = "https://eofu6t4zwmnq1ua.m.pipedream.net/feedback"
+    case QULERTS_COLLECTOR_URL = "https://c.qulerts.com"
+    case QULERTS_PUSH_FEEDBACK_URL = "https://f.qulerts.com"
 }

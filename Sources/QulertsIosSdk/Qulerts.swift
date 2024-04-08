@@ -83,13 +83,14 @@ import UIKit
         
         let customerInitializationHandler = CustomerInitializationHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, sdkKey: qulertsConfig.getSdkKey(), jsonDeserializerService: jsonDeserializerService)
         
-        if let notification = launchOptions?[.remoteNotification] as? [String: AnyObject] {
+        if let launchOptions = launchOptions,
+              let notification = launchOptions[.remoteNotification] as? [String: AnyObject] {
             if let pushSource = notification[Constants.PUSH_PAYLOAD_SOURCE.rawValue] as? String {
                 if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
                     notificationProcessorHandler.pushMessageOpened(pushContent: notification)
                 }
             }
-        }
+           }
  
         let callback: () -> Void = {
             sdkEventProcessorHandler.sessionStart()
