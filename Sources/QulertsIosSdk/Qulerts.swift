@@ -61,7 +61,11 @@ import UIKit
         
         let eventProcessorHandler = EventProcessorHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, entitySerializerService: entitySerializerService, chainProcessorHandler: chainProcessorHandler)
         let sdkEventProcessorHandler = SDKEventProcessorHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, entitySerializerService: entitySerializerService, deviceService: deviceService)
+        
         let notificationProcessorHandler = NotificationProcessorHandler(httpService: httpService, entitySerializerService: entitySerializerService)
+        
+        let qulertsNotificationHandler = QulertsNotificationHandler(notificationProcessorHandler: notificationProcessorHandler,pushNotificationOpenHandler: qulertsConfig.getPushNotificationOpenHandler())
+        
         let ecommerceEventProcessorHandler = EcommerceEventProcessorHandler(eventProcessorHandler: eventProcessorHandler)
         let jsonDeserializerService = JsonDeserializerService()
         
@@ -98,10 +102,11 @@ import UIKit
                 sdkEventProcessorHandler.newInstallation()
                 applicationContextHolder.setInstallationCompleted()
             }
-             notificationProcessorHandler.register(userNotificationCenter: UNUserNotificationCenter.current(), uiApplication: UIApplication.shared)
+            qulertsNotificationHandler.register(userNotificationCenter: UNUserNotificationCenter.current(), uiApplication: UIApplication.shared)
         }
         
         customerInitializationHandler.initialize(completionHandler: callback)
+        
     }
 
     class func getInstance() -> Qulerts {

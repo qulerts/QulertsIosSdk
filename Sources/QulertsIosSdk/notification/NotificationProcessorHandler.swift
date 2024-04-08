@@ -38,20 +38,6 @@ import UIKit
         }
     }
 
-    @objc public func register(userNotificationCenter: UNUserNotificationCenter, uiApplication: UIApplication) {
-        userNotificationCenter.requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
-           guard granted else { return }
-                userNotificationCenter.getNotificationSettings { settings in
-                    guard settings.authorizationStatus == .authorized else { return }
-                DispatchQueue.main.async {
-                    uiApplication.registerForRemoteNotifications()
-                }
-            }
-       }
-        
-        uiApplication.applicationIconBadgeNumber = 0
-    }
-
     private func getContentItem(key: String, pushContent: Dictionary<AnyHashable, Any>) -> String? {
         return pushContent[key] as? String
     }

@@ -15,6 +15,7 @@ import Foundation
     private var collectorUrl: String = Constants.QULERTS_COLLECTOR_URL.rawValue
     private var feedbackUrl: String = Constants.QULERTS_PUSH_FEEDBACK_URL.rawValue
     private var inAppNotificationLinkClickHandler: ((_ deepLink: String) -> ())? = nil
+    private var pushNotificationOpenHandler: ((_ launchUrl: String, _ userInfo: Dictionary<AnyHashable, Any>) -> ())? = nil
     
     private init(sdkKey: String) {
         self.sdkKey = sdkKey
@@ -39,6 +40,12 @@ import Foundation
         return self
     }
 
+    public func pushNotificationOpenHandler(_ handler: ((_ launchUrl: String, _ userInfo: Dictionary<AnyHashable, Any>) -> ())? = nil) -> QulertsConfig {
+        self.pushNotificationOpenHandler = handler
+        return self
+    }
+    
+    
     public func apiUrl(url: String) -> QulertsConfig {
         self.apiUrl = QulertsConfig.getValidUrl(url: url)
         return self
@@ -58,6 +65,10 @@ import Foundation
     
     public func getInAppNotificationLinkClickHandler() -> ((_ deepLink: String) -> ())? {
         return self.inAppNotificationLinkClickHandler
+    }
+    
+    public func getPushNotificationOpenHandler() -> ((_ launchUrl: String, _ userInfo: Dictionary<AnyHashable, Any>) -> ())? {
+        return self.pushNotificationOpenHandler
     }
     
     private static func getValidUrl(url: String) -> String {
