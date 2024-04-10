@@ -2,7 +2,7 @@
 //  MemberSummary.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 10/7/22.
+//  Created by Leo Gordon on 10/7/22.
 //  Copyright © 2022 qulerts. All rights reserved.
 //
 

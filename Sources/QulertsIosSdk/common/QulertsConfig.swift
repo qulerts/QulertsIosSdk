@@ -16,6 +16,7 @@ import Foundation
     private var feedbackUrl: String = Constants.QULERTS_PUSH_FEEDBACK_URL.rawValue
     private var inAppNotificationLinkClickHandler: ((_ deepLink: String) -> ())? = nil
     private var pushNotificationOpenHandler: ((_ launchUrl: String, _ userInfo: Dictionary<AnyHashable, Any>) -> ())? = nil
+    private var resetBadgesOnStartup: Bool = true
     
     private init(sdkKey: String) {
         self.sdkKey = sdkKey
@@ -32,6 +33,11 @@ import Foundation
     
     public func feedbackUrl(url: String) -> QulertsConfig {
         self.feedbackUrl = QulertsConfig.getValidUrl(url: url)
+        return self
+    }
+    
+    public func resetBadgesOnStartup(status: Bool) -> QulertsConfig {
+        self.resetBadgesOnStartup = status
         return self
     }
     
@@ -57,6 +63,15 @@ import Foundation
 
     public func getCollectorUrl() -> String {
         return self.collectorUrl
+    }
+    
+    public func getResetBadgeOnStartup() -> Bool {
+        return self.resetBadgesOnStartup
+    }
+
+    
+    public func getPushFeedBackUrl() -> String {
+        return self.feedbackUrl
     }
 
     public func getApiUrl() -> String {

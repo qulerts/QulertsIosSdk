@@ -2,7 +2,7 @@
 //  Qulerts.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 21.04.2020.
+//  Created by Leo Gordon on 21.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 
@@ -23,6 +23,7 @@ import UIKit
     private let ecommerceEventProcessorHandler: EcommerceEventProcessorHandler
     private let pushMessagesHistoryProcessorHandler: PushMessagesHistoryProcessorHandler
     private let memberSummaryProcessorHandler: MemberSummaryProcessorHandler
+    private let notificationHandler: QulertsNotificationHandler
 
     private init(qulertsConfig: QulertsConfig,
                  sessionContextHolder: SessionContextHolder,
@@ -32,7 +33,8 @@ import UIKit
                  notificationProcessorHandler: NotificationProcessorHandler,
                  ecommerceEventProcessorHandler: EcommerceEventProcessorHandler,
                  pushMessagesHistoryProcessorHandler: PushMessagesHistoryProcessorHandler,
-                 memberSummaryProcessorHandler: MemberSummaryProcessorHandler
+                 memberSummaryProcessorHandler: MemberSummaryProcessorHandler,
+                 notificationHandler: QulertsNotificationHandler
                  ) {
         self.sessionContextHolder = sessionContextHolder
         self.applicationContextHolder = applicationContextHolder
@@ -43,6 +45,18 @@ import UIKit
         self.qulertsConfig = qulertsConfig
         self.pushMessagesHistoryProcessorHandler = pushMessagesHistoryProcessorHandler
         self.memberSummaryProcessorHandler = memberSummaryProcessorHandler
+        self.notificationHandler = notificationHandler
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
+            guard granted else { return }
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                guard settings.authorizationStatus == .authorized else { return }
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            }
+        }
+        UNUserNotificationCenter.current().delegate = notificationHandler
     }
     
     @available(iOSApplicationExtension,unavailable)
@@ -54,7 +68,7 @@ import UIKit
     @objc public class func configure(qulertsConfig: QulertsConfig, launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         let sessionContextHolder = SessionContextHolder()
         let applicationContextHolder = ApplicationContextHolder(userDefaults: UserDefaults.standard)
-        let httpService = HttpService(sdkKey: qulertsConfig.getSdkKey(), session: URLSession.shared, collectorUrl: qulertsConfig.getCollectorUrl(), apiUrl: qulertsConfig.getApiUrl())
+        let httpService = HttpService(sdkKey: qulertsConfig.getSdkKey(), session: URLSession.shared, collectorUrl: qulertsConfig.getCollectorUrl(), apiUrl: qulertsConfig.getApiUrl(),pushFeedbackUrl: qulertsConfig.getPushFeedBackUrl())
         let entitySerializerService = EntitySerializerService(encodingService: EncodingService(), jsonSerializerService: JsonSerializerService())
         let deviceService = DeviceService(bundle: Bundle.main, uiDevice: UIDevice.current, uiScreen: UIScreen.main, locale: Locale.current)
         let chainProcessorHandler = ChainProcessorHandler()
@@ -64,7 +78,7 @@ import UIKit
         
         let notificationProcessorHandler = NotificationProcessorHandler(httpService: httpService, entitySerializerService: entitySerializerService)
         
-        let qulertsNotificationHandler = QulertsNotificationHandler(notificationProcessorHandler: notificationProcessorHandler,pushNotificationOpenHandler: qulertsConfig.getPushNotificationOpenHandler())
+       let notificationHandler = QulertsNotificationHandler(notificationProcessorHandler: notificationProcessorHandler, pushNotificationOpenHandler: qulertsConfig.getPushNotificationOpenHandler())
         
         let ecommerceEventProcessorHandler = EcommerceEventProcessorHandler(eventProcessorHandler: eventProcessorHandler)
         let jsonDeserializerService = JsonDeserializerService()
@@ -82,42 +96,23 @@ import UIKit
                           notificationProcessorHandler: notificationProcessorHandler,
                           ecommerceEventProcessorHandler: ecommerceEventProcessorHandler,
                           pushMessagesHistoryProcessorHandler: pushMessagesHistoryProcessorHandler,
-                          memberSummaryProcessorHandler: memberSummaryProcessorHandler
+                          memberSummaryProcessorHandler: memberSummaryProcessorHandler,
+                          notificationHandler: notificationHandler
         )
         
         let customerInitializationHandler = CustomerInitializationHandler(applicationContextHolder: applicationContextHolder, sessionContextHolder: sessionContextHolder, httpService: httpService, sdkKey: qulertsConfig.getSdkKey(), jsonDeserializerService: jsonDeserializerService)
         
-        if let launchOptions = launchOptions,
-              let notification = launchOptions[.remoteNotification] as? [String: AnyObject] {
-            if let pushSource = notification[Constants.PUSH_PAYLOAD_SOURCE.rawValue] as? String {
-                if Constants.PUSH_CHANNEL_ID.rawValue == pushSource {
-                    notificationProcessorHandler.pushMessageOpened(pushContent: notification)
-                }
-            }
-           }
- 
         let callback: () -> Void = {
             sdkEventProcessorHandler.sessionStart()
             if (applicationContextHolder.isNewInstallation()){
                 sdkEventProcessorHandler.newInstallation()
                 applicationContextHolder.setInstallationCompleted()
             }
-            
-            UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .alert, .badge]) { granted, error in
-                guard granted else { return }
-                UNUserNotificationCenter.current().getNotificationSettings { settings in
-                    guard settings.authorizationStatus == .authorized else { return }
-                    DispatchQueue.main.async {
-                        UIApplication.shared.registerForRemoteNotifications()
-                    }
-                }
+            if(qulertsConfig.getResetBadgeOnStartup()){
+                UIApplication.shared.applicationIconBadgeNumber = 0
             }
-            UNUserNotificationCenter.current().delegate = qulertsNotificationHandler
-            UIApplication.shared.applicationIconBadgeNumber = 0
         }
-        
-        
-        
+      
         customerInitializationHandler.initialize(completionHandler: callback)
         
     }
@@ -170,6 +165,10 @@ import UIKit
         return getInstance().ecommerceEventProcessorHandler
     }
     
+    @objc public class func notifications() -> NotificationProcessorHandler {
+        return getInstance().notificationProcessorHandler
+    }
+    
     @objc public class func memberSummary() -> MemberSummaryProcessorHandler {
         return getInstance().memberSummaryProcessorHandler
     }
@@ -177,4 +176,30 @@ import UIKit
     @objc public class func pushMessagesHistory() -> PushMessagesHistoryProcessorHandler {
         return getInstance().pushMessagesHistoryProcessorHandler
     }
+    
+    @objc public class func tag(key:String) -> Void{
+        getInstance().eventProcessorHandler.tagBoolean(key: key, value: true)
+    }
+    
+    @objc public class func tagString(key:String, value:String) -> Void{
+        getInstance().eventProcessorHandler.tagString(key: key, value: value)
+    }
+    @objc public class func tagInteger(key:String, value: Int32) -> Void{
+        getInstance().eventProcessorHandler.tagInteger(key: key, value: value)
+    }
+    @objc public class func tagDouble(key:String, value: Double) -> Void{
+        getInstance().eventProcessorHandler.tagDouble(key: key, value: value)
+    }
+    @objc public class func tagDate(key:String, value: Date) -> Void{
+        getInstance().eventProcessorHandler.tagDate(key: key, value: value)
+    }
+    
+    @objc public class func tagBoolean(key:String, value: Bool) -> Void{
+        getInstance().eventProcessorHandler.tagBoolean(key: key, value: value)
+    }
+    
+    @objc public class func tagArray(key:String, value: Array<String>) -> Void{
+        getInstance().eventProcessorHandler.tagArray(key: key, value: value)
+    }
+    
 }

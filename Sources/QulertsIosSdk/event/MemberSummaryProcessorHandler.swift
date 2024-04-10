@@ -2,7 +2,7 @@
 //  MemberSummaryProcessorHandler.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 10/3/22.
+//  Created by Leo Gordon on 10/3/22.
 //  Copyright © 2022 qulerts. All rights reserved.
 //
 

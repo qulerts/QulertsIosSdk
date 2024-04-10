@@ -2,7 +2,7 @@
 //  HttpService.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 21.04.2020.
+//  Created by Leo Gordon on 21.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 
@@ -14,12 +14,14 @@ class HttpService {
     private let session: HttpSession
     private let collectorUrl: String
     private let apiUrl: String
+    private let pushFeedbackUrl: String
     
-    init(sdkKey: String, session: HttpSession, collectorUrl: String, apiUrl: String) {
+    init(sdkKey: String, session: HttpSession, collectorUrl: String, apiUrl: String, pushFeedbackUrl: String) {
         self.session = session
         self.sdkKey = sdkKey
         self.collectorUrl = collectorUrl
         self.apiUrl = apiUrl
+        self.pushFeedbackUrl = pushFeedbackUrl
     }
     
     func getApiRequest<T>(path: String,
@@ -56,7 +58,7 @@ class HttpService {
     
     func sendFeedback(payload: String?) {
         if let event = payload {
-            var request =  URLRequest(url: URL(string: "https://f.qulerts.com/p.gif?e=\(event)")!)
+            var request =  URLRequest(url: URL(string: "\(self.pushFeedbackUrl)/p.gif?e=\(event)")!)
             request.httpMethod = "GET"
             
             session.doRequest(from: request) { httpResult in

@@ -2,7 +2,7 @@
 //  RandomValueUtils.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 21.04.2020.
+//  Created by Leo Gordon on 21.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 

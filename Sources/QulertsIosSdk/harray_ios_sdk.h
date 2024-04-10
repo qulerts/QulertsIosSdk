@@ -2,7 +2,7 @@
 //  harray_ios_sdk.h
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 22.04.2020.
+//  Created by Leo Gordon on 22.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 

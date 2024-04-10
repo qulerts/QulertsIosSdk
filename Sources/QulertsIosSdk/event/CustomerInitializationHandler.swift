@@ -2,7 +2,7 @@
 //  CustomerInitializationHandler.swift
 //  QulertsIosApp
 //
-//  Created by YILDIRIM ADIGÜZEL on 4/4/24.
+//  Created by Leo Gordon on 4/4/24.
 //
 
 import Foundation

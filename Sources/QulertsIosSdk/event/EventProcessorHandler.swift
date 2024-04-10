@@ -2,7 +2,7 @@
 //  EventProcessorHandler.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 21.04.2020.
+//  Created by Leo Gordon on 21.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 
@@ -15,6 +15,10 @@ import Foundation
     private let httpService: HttpService
     private let entitySerializerService: EntitySerializerService
     private let chainProcessorHandler : ChainProcessorHandler
+    
+    private let formatter = ISO8601DateFormatter()
+    let numberFormatter = NumberFormatter()
+   
 
     init(applicationContextHolder: ApplicationContextHolder, sessionContextHolder: SessionContextHolder, httpService: HttpService, entitySerializerService: EntitySerializerService, chainProcessorHandler : ChainProcessorHandler) {
         self.applicationContextHolder = applicationContextHolder
@@ -22,6 +26,9 @@ import Foundation
         self.httpService = httpService
         self.entitySerializerService = entitySerializerService
         self.chainProcessorHandler = chainProcessorHandler
+        self.numberFormatter.numberStyle = .decimal
+        self.numberFormatter.minimumFractionDigits = 2
+        self.numberFormatter.maximumFractionDigits = 2
     }
 
     @objc public func pageView(pageType: String) {
@@ -97,6 +104,66 @@ import Foundation
                 .addBody(key: "deviceToken", value: deviceToken)
                 .toMap()
         let serializedEvent = entitySerializerService.serializeToBase64(event: pageViewEvent)
+        httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+    
+    
+    func tagString(key:String, value:String) -> Void{
+        let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+                .addBody(key: "name", value: key)
+                .addBody(key: "value", value: value)
+                .addBody(key: "tt", value: "str")
+                .toMap()
+        let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
+        httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+    func tagInteger(key:String, value: Int32) -> Void{
+        let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+                .addBody(key: "name", value: key)
+                .addBody(key: "value", value: value)
+                .addBody(key: "tt", value: "ln")
+                .toMap()
+        let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
+        httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+    func tagDouble(key:String, value: Double) -> Void{
+        let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+                .addBody(key: "name", value: key)
+                .addBody(key: "value", value: numberFormatter.string(from:  NSNumber(value: value)) ?? 0)
+                .addBody(key: "tt", value: "db")
+                .toMap()
+        let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
+        httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+   func tagDate(key:String, value: Date) -> Void{
+       let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+               .addBody(key: "name", value: key)
+               .addBody(key: "value", value: formatter.string(from: value))
+               .addBody(key: "tt", value: "dt")
+               .toMap()
+       let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
+       httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+    
+    
+    func tagBoolean(key:String, value: Bool) -> Void{
+        let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+                .addBody(key: "name", value: key)
+                .addBody(key: "value", value: value)
+                .addBody(key: "tt", value: "b")
+                .toMap()
+        let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
+        httpService.postFormUrlEncoded(payload: serializedEvent)
+    }
+    
+    
+    func tagArray(key:String, value: Array<String>) -> Void{
+        let tagEvent = QulertsEvent.create(name: "tag", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
+                .addBody(key: "name", value: key)
+                .addBody(key: "value", value: value)
+                .addBody(key: "tt", value: "ar")
+                .toMap()
+        let serializedEvent = entitySerializerService.serializeToBase64(event: tagEvent)
         httpService.postFormUrlEncoded(payload: serializedEvent)
     }
 }

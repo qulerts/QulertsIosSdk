@@ -2,7 +2,7 @@
 //  SDKEventProcessorHandler.swift
 //  harray-ios-sdk
 //
-//  Created by YILDIRIM ADIGÜZEL on 22.04.2020.
+//  Created by Leo Gordon on 22.04.2020.
 //  Copyright © 2020 qulerts. All rights reserved.
 //
 
@@ -29,6 +29,12 @@ class SDKEventProcessorHandler {
     }
 
     func sessionStart() {
+        var debugMode = false
+        #if DEBUG
+            debugMode = true
+        #endif
+        
+        
         let pageViewEvent = QulertsEvent.create(name: "SS", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
                 .addHeader(key: "sv", value: applicationContextHolder.getSdkVersion())
                 .memberId(memberId: sessionContextHolder.getMemberId())
@@ -44,6 +50,7 @@ class SDKEventProcessorHandler {
                 .addBody(key: "sw", value: deviceService.getScreenWidth())
                 .addBody(key: "sh", value: deviceService.getScreenHeight())
                 .addBody(key: "ln", value: deviceService.getLanguage())
+                .addBody(key: "db", value: debugMode)
                 .toMap()
         let serializedEvent = entitySerializerService.serializeToBase64(event: pageViewEvent)
         httpService.postFormUrlEncoded(payload: serializedEvent)
