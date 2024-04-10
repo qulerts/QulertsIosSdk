@@ -16,7 +16,7 @@ import Foundation
     private let entitySerializerService: EntitySerializerService
     private let chainProcessorHandler : ChainProcessorHandler
     
-    private let dateFormatter = DateFormatter()
+    private let dateFormatter = ISO8601DateFormatter()
     private let numberFormatter = NumberFormatter()
    
 
@@ -30,8 +30,8 @@ import Foundation
         self.numberFormatter.minimumFractionDigits = 2
         self.numberFormatter.maximumFractionDigits = 2
         
-        self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSZ"
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        self.dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        self.dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
     }
 
     @objc public func pageView(pageType: String) {
