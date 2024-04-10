@@ -40,17 +40,16 @@ class HttpService {
     }
 
     func postFormUrlEncoded(payload: String?) {
+        
         if let event = payload {
-            var params = Dictionary<String, String>()
-            params["s"] = sdkKey
-            params["e"] = event
+            var request =  URLRequest(url: URL(string: "\(self.collectorUrl)/p.gif?s=\(sdkKey)&e=\(event)")!)
+            request.httpMethod = "GET"
             
-            let endpoint = getCollectorUrl(path: "p.gif", params: params)
-            session.doRequest(from: ApiGetJsonRequest(endpoint: endpoint).getUrlRequest()) { httpResult in
+            session.doRequest(from: request) { httpResult in
                 if httpResult.isValidStatus() {
-                    QulertsLogger.log(message: "Xenn collector returned \(httpResult.getStatusCode())")
+                    QulertsLogger.log(message: "Qulerts collector returned \(httpResult.getStatusCode())")
                 } else {
-                    QulertsLogger.log(message: "Xenn collector error. Detail: \(httpResult.toString())")
+                    QulertsLogger.log(message: "Qulerts collector error. Detail: \(httpResult.toString())")
                 }
             }
         }
