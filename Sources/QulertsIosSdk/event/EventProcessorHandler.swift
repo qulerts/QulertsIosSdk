@@ -16,8 +16,8 @@ import Foundation
     private let entitySerializerService: EntitySerializerService
     private let chainProcessorHandler : ChainProcessorHandler
     
-    private let formatter = ISO8601DateFormatter()
-    let numberFormatter = NumberFormatter()
+    private let dateFormatter = DateFormatter()
+    private let numberFormatter = NumberFormatter()
    
 
     init(applicationContextHolder: ApplicationContextHolder, sessionContextHolder: SessionContextHolder, httpService: HttpService, entitySerializerService: EntitySerializerService, chainProcessorHandler : ChainProcessorHandler) {
@@ -29,6 +29,9 @@ import Foundation
         self.numberFormatter.numberStyle = .decimal
         self.numberFormatter.minimumFractionDigits = 2
         self.numberFormatter.maximumFractionDigits = 2
+        
+        self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSZ"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
     }
 
     @objc public func pageView(pageType: String) {
@@ -141,7 +144,7 @@ import Foundation
    func tagDate(key:String, value: Date) -> Void{
        let tagEvent = QulertsEvent.create(name: "AR", persistentId: applicationContextHolder.getPersistentId(), sessionId: sessionContextHolder.getSessionId())
                .addBody(key: "name", value: key)
-               .addBody(key: "value", value: formatter.string(from: value))
+               .addBody(key: "value", value: dateFormatter.string(from: value))
                .addBody(key: "tt", value: "dt")
                .addBody(key: "type", value: "tag")
                .toMap()

@@ -109,7 +109,9 @@ import UIKit
                 applicationContextHolder.setInstallationCompleted()
             }
             if(qulertsConfig.getResetBadgeOnStartup()){
-                UIApplication.shared.applicationIconBadgeNumber = 0
+                DispatchQueue.main.async {
+                    UIApplication.shared.applicationIconBadgeNumber = 0
+                }
             }
         }
       
